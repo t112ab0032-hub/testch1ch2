@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>會計學線上測驗系統｜CH1–CH2 隨堂測驗</title>
+  <style>
+    :root {
+      --navy: #003366;
+      --navy-dark: #002244;
+      --navy-soft: #eef3f8;
+      --gold: #c5a059;
+      --gold-bg: #fdf8ee;
+      --gold-border: #d97706;
+      --bg: #f7f7f7;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --radius: 10px;
+      --shadow: 0 2px 10px rgba(0, 51, 102, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* 頂部導覽列 */
+    .topbar {
+      background: var(--navy);
+      color: #ffffff;
+      padding: 14px 24px;
+      border-bottom: 3px solid var(--gold);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      background: var(--gold);
+      color: var(--navy-dark);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-stats {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .topbar-stats strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* 主版面配置：左側作答區 + 右側題號跳轉卡 */
+    .container {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 16px 48px;
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    /* 題目區 */
+    .q-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .q-number {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .q-type-tag {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy);
+      background: var(--navy-soft);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .flag-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: #374151;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .flag-btn:hover {
+      border-color: var(--gold-border);
+      background: var(--gold-bg);
+    }
+
+    .flag-btn.flagged {
+      background: var(--gold-bg);
+      border-color: var(--gold-border);
+      color: #b45309;
+    }
+
+    .q-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 22px;
+      line-height: 1.75;
+      white-space: pre-line;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      width: 100%;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .option-item:hover {
+      border-color: var(--navy);
+      background: var(--navy-soft);
+    }
+
+    .option-item.selected {
+      border-color: var(--navy);
+      background: var(--navy-soft);
+      box-shadow: inset 0 0 0 1px var(--navy);
+    }
+
+    .option-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid #9ca3af;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #4b5563;
+      background: #ffffff;
+      margin-top: 1px;
+    }
+
+    .option-item.selected .option-num {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #ffffff;
+    }
+
+    .option-label {
+      flex: 1;
+      line-height: 1.6;
+    }
+
+    /* 底部切換按鈕列 */
+    .nav-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .nav-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      border-color: #d1d5db;
+      color: #374151;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .btn-primary {
+      background: var(--navy);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--navy-dark);
+    }
+
+    .btn-submit {
+      background: #15803d;
+      color: #ffffff;
+      padding: 10px 22px;
+    }
+
+    .btn-submit:hover {
+      background: #166534;
+    }
+
+    .shortcut-hint {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* 右側題號跳轉卡 */
+    .sidebar-card {
+      position: sticky;
+      top: 76px;
+    }
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      font-size: 12px;
+      color: #4b5563;
+      background: #f9fafb;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .dot-unanswered {
+      background: #ffffff;
+      border: 1.5px solid #9ca3af;
+    }
+
+    .dot-answered {
+      background: var(--navy);
+    }
+
+    .dot-flagged {
+      background: #f59e0b;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .pill {
+      flex: 1;
+      padding: 5px 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: #ffffff;
+      color: #4b5563;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .pill.active {
+      background: var(--navy-soft);
+      border-color: var(--navy);
+      color: var(--navy);
+    }
+
+    .grid-numbers {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .num-btn {
+      position: relative;
+      height: 38px;
+      border-radius: 6px;
+      border: 1.5px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .num-btn:hover {
+      border-color: var(--navy);
+      transform: translateY(-1px);
+    }
+
+    .num-btn.answered {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #ffffff;
+    }
+
+    .num-btn.current {
+      outline: 2.5px solid var(--gold);
+      outline-offset: 1px;
+    }
+
+    .num-btn.flagged::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #f59e0b;
+      border: 2px solid #ffffff;
+    }
+
+    .num-btn.hidden-filter {
+      opacity: 0.22;
+    }
+
+    .sidebar-submit {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+    }
+
+    /* 交卷後成績與檢討頁面 */
+    .result-wrapper {
+      max-width: 960px;
+      margin: 24px auto;
+      padding: 0 16px 60px;
+    }
+
+    .score-banner {
+      background: var(--navy);
+      color: #ffffff;
+      border-radius: var(--radius);
+      padding: 28px;
+      border-bottom: 4px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .score-main h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .score-main p {
+      font-size: 14px;
+      color: #d1d5db;
+    }
+
+    .score-box {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(197, 160, 89, 0.6);
+      border-radius: 8px;
+      padding: 14px 24px;
+      text-align: center;
+    }
+
+    .score-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+
+    .score-sub {
+      font-size: 13px;
+      color: #e5e7eb;
+      margin-top: 4px;
+    }
+
+    .email-status-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--navy);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .email-status-card.sent {
+      border-left-color: var(--success);
+      background: var(--success-bg);
+    }
+
+    .email-status-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .email-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .review-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .review-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .review-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .review-card.wrong {
+      border-left: 4px solid var(--danger);
+    }
+
+    .review-card.correct {
+      border-left: 4px solid var(--success);
+    }
+
+    .review-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge-correct {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid #bbf7d0;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .badge-wrong {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #fecaca;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .badge-flag {
+      background: var(--gold-bg);
+      color: #b45309;
+      border: 1px solid #fde68a;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .review-q {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .review-opt {
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .review-opt.is-answer {
+      background: var(--success-bg);
+      border-color: #86efac;
+      color: #14532d;
+      font-weight: 600;
+    }
+
+    .review-opt.is-user-wrong {
+      background: var(--danger-bg);
+      border-color: #fca5a5;
+      color: #7f1d1d;
+    }
+
+    /* 確認交卷彈窗 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: #ffffff;
+      border-radius: var(--radius);
+      max-width: 440px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal h3 {
+      font-size: 18px;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .modal p {
+      font-size: 14px;
+      color: #374151;
+      margin-bottom: 18px;
+      line-height: 1.65;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-badge">會計學測驗</span>
+        <h1>CH1–CH2 線上隨堂測驗系統</h1>
+      </div>
+      <div class="topbar-stats" id="topbarStats">
+        <span>進度：<strong id="statAnswered">0</strong> / <strong id="statTotal">30</strong> 題</span>
+        <span>未作答：<strong id="statUnanswered">30</strong> 題</span>
+        <span>已標記：<strong id="statFlagged">0</strong> 題</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 測驗作答畫面 -->
+  <main class="container" id="examView">
+    <!-- 左側題目作答區 -->
+    <section class="card">
+      <div class="q-header">
+        <div class="q-number">
+          <span id="qTitle">第 1 題</span>
+          <span class="q-type-tag">單選題</span>
+        </div>
+        <button type="button" class="flag-btn" id="flagBtn" onclick="toggleFlag()">
+          <span id="flagIcon">⚑</span>
+          <span id="flagText">標記此題（待檢查）</span>
+        </button>
+      </div>
+
+      <div class="q-text" id="qText"></div>
+
+      <div class="options-list" id="optionsList"></div>
+
+      <div class="nav-footer">
+        <div class="nav-group">
+          <button type="button" class="btn btn-secondary" id="prevBtn" onclick="goPrev()">← 上一題</button>
+          <button type="button" class="btn btn-primary" id="nextBtn" onclick="goNext()">下一題 →</button>
+        </div>
+        <button type="button" class="btn btn-submit" onclick="openSubmitModal()">交卷並送出成績</button>
+      </div>
+
+      <div class="shortcut-hint">
+        快捷鍵提示：按數字鍵 <strong>1–4</strong> 作答、<strong>← / →</strong> 切換上下題、<strong>M</strong> 標記題目。
+      </div>
+    </section>
+
+    <!-- 右側阿摩風格題號跳轉卡 -->
+    <aside class="card sidebar-card">
+      <div class="sidebar-title">
+        <span>題號跳轉卡</span>
+        <span style="font-size:12px; color:#6b7280; font-weight:500;">點擊題號快速跳轉</span>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><span class="dot dot-unanswered"></span>未作答</div>
+        <div class="legend-item"><span class="dot dot-answered"></span>已作答</div>
+        <div class="legend-item"><span class="dot dot-flagged"></span>已標記</div>
+      </div>
+
+      <div class="filter-pills">
+        <button type="button" class="pill active" data-filter="all" onclick="setCardFilter('all')">全部</button>
+        <button type="button" class="pill" data-filter="unanswered" onclick="setCardFilter('unanswered')">未作答</button>
+        <button type="button" class="pill" data-filter="flagged" onclick="setCardFilter('flagged')">已標記</button>
+      </div>
+
+      <div class="grid-numbers" id="numberGrid"></div>
+
+      <button type="button" class="btn btn-submit sidebar-submit" onclick="openSubmitModal()">
+        確認交卷
+      </button>
+    </aside>
+  </main>
+
+  <!-- 交卷後成績與逐題檢討畫面 -->
+  <section class="result-wrapper" id="resultView" style="display:none;">
+    <div class="score-banner">
+      <div class="score-main">
+        <h2>測驗完成！作答結果總覽</h2>
+        <p id="resultSummaryText"></p>
+      </div>
+      <div class="score-box">
+        <div class="score-value" id="scoreDisplay">0 分</div>
+        <div class="score-sub" id="correctCountDisplay">答對 0 / 30 題</div>
+      </div>
+    </div>
+
+    <!-- Email 寄送狀態與備用操作區 -->
+    <div class="email-status-card" id="emailStatusCard">
+      <div class="email-status-title" id="emailStatusTitle">正在將作答狀況寄送至老師信箱...</div>
+      <div id="emailStatusDesc" style="font-size:13px; color:#4b5563;"></div>
+      <div class="email-actions">
+        <a id="mailtoFallbackBtn" class="btn btn-primary" href="#" style="text-decoration:none; display:inline-block;">
+          開啟信箱寄送給老師（a0976403924@gmail.com）
+        </a>
+        <button type="button" class="btn btn-secondary" onclick="copyReportToClipboard()">
+          一鍵複製完整作答報告
+        </button>
+      </div>
+    </div>
+
+    <div class="review-controls">
+      <div class="review-tabs">
+        <button type="button" class="pill active" data-rtab="all" onclick="setReviewTab('all')">全部題目 (30)</button>
+        <button type="button" class="pill" data-rtab="wrong" onclick="setReviewTab('wrong')">只看錯題</button>
+        <button type="button" class="pill" data-rtab="flagged" onclick="setReviewTab('flagged')">曾標記題目</button>
+      </div>
+      <button type="button" class="btn btn-secondary" onclick="resetExam()">重新作答（清除紀錄）</button>
+    </div>
+
+    <div id="reviewContainer"></div>
+  </section>
+
+  <!-- 交卷確認視窗 -->
+  <div class="modal-backdrop" id="submitModal">
+    <div class="modal">
+      <h3>確定要現在交卷嗎？</h3>
+      <p id="submitModalText"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeSubmitModal()">返回檢查</button>
+        <button type="button" class="btn btn-submit" onclick="confirmSubmit()">確定交卷</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 【教師設定區】日後若要修改信箱、啟用背景全自動寄信、或修改題目，請直接編輯此區
+    // =========================================================================
+
+    // 1. 接收作答結果的老師 Email
+    const TEACHER_EMAIL = "a0976403924@gmail.com";
+
+    // 2. [選填] Web3Forms 免費 Access Key（填入後，學生按交卷會在背景全自動寄信到上方信箱，免開信箱App）
+    //    申請方式（免費、10秒完成）：至 https://web3forms.com/ 輸入 a0976403924@gmail.com 取得 Key 貼在下方引號內
+    const WEB3FORMS_ACCESS_KEY = "";
+
+    // 3. 題庫陣列（依照出題順序排列；answer 為正確選項編號 1、2、3 或 4）
+    const QUESTIONS = [
+  {
+    "id": 1,
+    "question": "買進萬能工具$2,100，估計可用 7 年，買進時列為當期費用，是基於",
+    "options": [
+      "可比性",
+      "時效性",
+      "重大性",
+      "忠實表述"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 2,
+    "question": "對獨資之營利事業，下列何者應登帳？",
+    "options": [
+      "子女婚慶之餐費支出",
+      "以資本主名義購車供企業使用",
+      "與客戶簽約取得代理權",
+      "資本主向他人借款"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 3,
+    "question": "企業應將負債作長、短期之區分，其根據之基本假設為",
+    "options": [
+      "時效性",
+      "繼續經營個體",
+      "可驗證性",
+      "重大性"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 4,
+    "question": "某商店年初資產$60,000、負債$40,000，當年增資$5,000，收益$3,000。若期末資產$70,000、負債$45,000，則當年費損應為",
+    "options": [
+      "$4,000",
+      "$3,000",
+      "$2,000",
+      "$1,000"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 5,
+    "question": "以現金購買土地，使資產總額",
+    "options": [
+      "增加",
+      "減少",
+      "不變",
+      "不一定"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 6,
+    "question": "與快遞公司簽約，支付押金$1,000，簽發即期支票乙紙付訖，其分錄為",
+    "options": [
+      "借：存入保證金$1,000，貸：現金$1,000",
+      "借：存出保證金$1,000，貸：應付票據$1,000",
+      "借：存出保證金$1,000，貸：銀行存款$1,000",
+      "借：機器設備$1,000，貸：銀行存款$1,000"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 7,
+    "question": "張君年初投資$10,000，當年提回$2,000，期末權益為$13,000，則當年營業結果為",
+    "options": [
+      "淨利$1,000",
+      "淨損$1,000",
+      "淨利$5,000",
+      "淨損$5,000"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 8,
+    "question": "李君年初投資現金$150,000 成立本商店，而期末資產有$350,000，期末負債為$300,000，當年收益$50,000，則費損為",
+    "options": [
+      "$50,000",
+      "$100,000",
+      "$150,000",
+      "$200,000"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 9,
+    "question": "進貨運費是屬於",
+    "options": [
+      "營業費用",
+      "營業外支出",
+      "銷貨",
+      "進貨成本的加項"
+    ],
+    "answer": 4
+  },
+  {
+    "id": 10,
+    "question": "根據借貸法則，當費損發生時，不能配合發生的要素變化為",
+    "options": [
+      "收益增加",
+      "資產減少",
+      "負債增加",
+      "權益減少"
+    ],
+    "answer": 4
+  },
+  {
+    "id": 11,
+    "question": "負債為資產之半數少$8,000，淨值為負債之 1.5 倍，則淨值金額為",
+    "options": [
+      "$48,000",
+      "$8,000",
+      "$64,000",
+      "$80,000"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 12,
+    "question": "奇犽公司民國 101 年機器設備折舊應提列$50,000，誤提列為$52,000，而對小傑公司賒購貨品$30,000，誤認列為$28,000，此批貨品尚未付清貨款但於年底已出售，則對奇犽公司民國 101 年之報表淨影響為使",
+    "options": [
+      "資產高估，權益高估",
+      "資產低估，負債低估，權益低估",
+      "負債低估，權益高估",
+      "資產低估，負債低估，權益不變"
+    ],
+    "answer": 4
+  },
+  {
+    "id": 13,
+    "question": "將交易事項依借貸法則，區分借貸，記入日記簿之工作稱為",
+    "options": [
+      "調整",
+      "過帳",
+      "試算",
+      "分錄"
+    ],
+    "answer": 4
+  },
+  {
+    "id": 14,
+    "question": "以遠期支票支付保險費，其分錄為",
+    "options": [
+      "現金分錄",
+      "轉帳分錄",
+      "多項式分錄",
+      "混合分錄"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 15,
+    "question": "日記簿是以下列何者為主體之序時簿？",
+    "options": [
+      "會計項目",
+      "交易",
+      "財務報表要素",
+      "財產增減"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 16,
+    "question": "台中公司本月員工薪水於 1 月 5 日公司才以轉帳支付，則本年底的財務報表上有關員工本月薪資的敘述何者正確？",
+    "options": [
+      "權益增加，負債減少",
+      "權益減少，負債增加",
+      "權益增加，現金增加",
+      "資產減少，費損增加"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 17,
+    "question": "員工出差取得的車票存根是屬於",
+    "options": [
+      "對外憑證",
+      "外來憑證",
+      "內部憑證",
+      "記帳憑證"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 18,
+    "question": "代業主支付私人汽車的汽油費應",
+    "options": [
+      "借記燃料費",
+      "借記業主往來",
+      "貸記燃料費",
+      "貸記業主往來"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 19,
+    "question": "下列何者錯誤？",
+    "options": [
+      "所有分錄均應記入日記簿內",
+      "日記簿之類頁欄是記載日記簿之頁數",
+      "賒購商品一批之交易，應為轉帳分錄",
+      "每一分錄借貸雙方金額必定相等"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 20,
+    "question": "某一帳戶，原貸方金額$5,000，借方金額$3,000，現再過入一筆貸方金額$6,000，則現有",
+    "options": [
+      "借餘$8,000",
+      "貸餘$11,000",
+      "貸餘$8,000",
+      "借餘$3,000"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 21,
+    "question": "應收帳款帳戶若發生貸餘應列為",
+    "options": [
+      "流動資產的減項",
+      "非流動資產",
+      "流動負債",
+      "非流動負債"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 22,
+    "question": "會計人員將佣金收入$8,000，誤記租金收入，則更正分錄為",
+    "options": [
+      "借：現金$8,000，貸：佣金收入$8,000",
+      "借：現金$8,000，貸：租金收入$8,000",
+      "借：租金收入$8,000，貸：佣金收入$8,000",
+      "借：佣金收入$8,000，貸：租金收入$8,000"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 23,
+    "question": "現銷商品$5,000 誤以現購入帳，將使餘額式試算表之借方總額",
+    "options": [
+      "少計$10,000",
+      "多計$5,000",
+      "少計$5,000",
+      "沒有影響"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 24,
+    "question": "下列哪一事項使餘額試算表發生不平衡？",
+    "options": [
+      "現購文具用品$500，過帳時借記文具用品$5,000，貸記現金$500",
+      "尚未收現之佣金，借記應收帳款$2,500，貸記銷貨收入$2,500",
+      "償還貨欠$2,000，過帳時記入應收帳款借方$2,000，現金貸方$2,000",
+      "現購商品$5,000，誤記現銷商品$500"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 25,
+    "question": "現金收入$1,000，誤過入現金帳戶之貸方，將使總額式試算表",
+    "options": [
+      "借方多計$1,000，貸方少計$1,000",
+      "借方少計$1,000，貸方多計$1,000",
+      "借貸方各多計$1,000",
+      "借貸方各少計$1,000"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 26,
+    "question": "購買商品$30,000，簽發即期支票付訖，誤貸記應付票據，其改正分錄為",
+    "options": [
+      "借：銀行存款$30,000，貸：應付票據$30,000",
+      "借：應付票據$30,000，貸：銀行存款$30,000",
+      "借：應付票據$30,000，貸：應付帳款$30,000",
+      "借：進貨$30,000，貸：銀行存款$30,000"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 27,
+    "question": "帳列應付費用原有貸餘$600，今有預付費用$1,000 誤借記應付費用帳戶，則對餘額試算表之影響為",
+    "options": [
+      "貸方合計數少計$1,000",
+      "借方合計數少計$400",
+      "貸方合計數少計$400",
+      "借貸雙方之合計數均少計$600"
+    ],
+    "answer": 4
+  },
+  {
+    "id": 28,
+    "question": "某商店餘額試算表不平衡，貸方總和為$92,600，經追查結果發現，曾有賒購椅子$610 的交易，過帳時被誤記為借：辦公設備$601，及借：應付帳款$610，下列有關試算表之敘述何者正確？",
+    "options": [
+      "更正錯誤前，借方總和$93,201",
+      "更正錯誤前，借方總額$93,811",
+      "正確之借方總和$93,219",
+      "正確之貸方總和$93,811"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 29,
+    "question": "購貨退出$2,000，貸方誤記為銷貨退回$2,000，借方記帳無誤，將使餘額式試算表合計數",
+    "options": [
+      "借貸方均少計$2,000",
+      "借方多計$2,000",
+      "無影響",
+      "貸方多計$2,000"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 30,
+    "question": "應付利息$6,000 之調整分錄，借貸方會計項目顛倒，若調整前利息費用借餘$7,000，應付利息$0，則此項錯誤對餘額式試算表合計數之影響為",
+    "options": [
+      "借貸方均無影響",
+      "借貸方均少計$6,000",
+      "借方少計$6,000",
+      "貸方多計$6,000"
+    ],
+    "answer": 2
+  }
+];
+
+    // =========================================================================
+    // 以下為系統運作邏輯（一般情況無需修改）
+    // =========================================================================
+    const STORAGE_KEY = "accounting_quiz_ch1_2_v1";
+
+    let state = {
+      currentIndex: 0,
+      answers: {},      // { [questionId]: 1 | 2 | 3 | 4 }
+      flagged: {},      // { [questionId]: true }
+      submitted: false,
+      submittedAt: null,
+      cardFilter: "all",
+      reviewTab: "all"
+    };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed };
+        }
+      } catch (e) {
+        console.warn("無法讀取暫存紀錄", e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn("無法寫入暫存紀錄", e);
+      }
+    }
+
+    function updateCounters() {
+      const total = QUESTIONS.length;
+      let answeredCount = 0;
+      let flaggedCount = 0;
+
+      QUESTIONS.forEach(q => {
+        if (state.answers[q.id] !== undefined) answeredCount++;
+        if (state.flagged[q.id]) flaggedCount++;
+      });
+
+      document.getElementById("statTotal").textContent = total;
+      document.getElementById("statAnswered").textContent = answeredCount;
+      document.getElementById("statUnanswered").textContent = total - answeredCount;
+      document.getElementById("statFlagged").textContent = flaggedCount;
+    }
+
+    function renderQuestion() {
+      const q = QUESTIONS[state.currentIndex];
+      document.getElementById("qTitle").textContent = `第 ${state.currentIndex + 1} 題 / 共 ${QUESTIONS.length} 題`;
+      document.getElementById("qText").textContent = q.question;
+
+      // 標記按鈕狀態
+      const isFlagged = !!state.flagged[q.id];
+      const flagBtn = document.getElementById("flagBtn");
+      const flagText = document.getElementById("flagText");
+      if (isFlagged) {
+        flagBtn.classList.add("flagged");
+        flagText.textContent = "已標記（點擊取消）";
+      } else {
+        flagBtn.classList.remove("flagged");
+        flagText.textContent = "標記此題（待檢查）";
+      }
+
+      // 渲染 1~4 選項
+      const optionsList = document.getElementById("optionsList");
+      optionsList.innerHTML = "";
+      q.options.forEach((optText, idx) => {
+        const optNum = idx + 1;
+        const isSelected = state.answers[q.id] === optNum;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-item" + (isSelected ? " selected" : "");
+        btn.onclick = () => selectOption(optNum);
+
+        btn.innerHTML = `
+          <span class="option-num">${optNum}</span>
+          <span class="option-label">${escapeHtml(optText)}</span>
+        `;
+        optionsList.appendChild(btn);
+      });
+
+      // 上一題 / 下一題按鈕狀態
+      document.getElementById("prevBtn").disabled = state.currentIndex === 0;
+      document.getElementById("nextBtn").disabled = state.currentIndex === QUESTIONS.length - 1;
+
+      renderNumberGrid();
+      updateCounters();
+    }
+
+    function renderNumberGrid() {
+      const grid = document.getElementById("numberGrid");
+      grid.innerHTML = "";
+
+      QUESTIONS.forEach((q, idx) => {
+        const isAnswered = state.answers[q.id] !== undefined;
+        const isFlagged = !!state.flagged[q.id];
+        const isCurrent = idx === state.currentIndex;
+
+        let dim = false;
+        if (state.cardFilter === "unanswered" && isAnswered) dim = true;
+        if (state.cardFilter === "flagged" && !isFlagged) dim = true;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = [
+          "num-btn",
+          isAnswered ? "answered" : "",
+          isFlagged ? "flagged" : "",
+          isCurrent ? "current" : "",
+          dim ? "hidden-filter" : ""
+        ].filter(Boolean).join(" ");
+        btn.textContent = idx + 1;
+        btn.title = `第 ${idx + 1} 題${isAnswered ? "（已作答：" + state.answers[q.id] + "）" : "（未作答）"}${isFlagged ? " [已標記]" : ""}`;
+        btn.onclick = () => {
+          state.currentIndex = idx;
+          saveState();
+          renderQuestion();
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectOption(optNum) {
+      const q = QUESTIONS[state.currentIndex];
+      state.answers[q.id] = optNum;
+      saveState();
+      renderQuestion();
+    }
+
+    function toggleFlag() {
+      const q = QUESTIONS[state.currentIndex];
+      if (state.flagged[q.id]) {
+        delete state.flagged[q.id];
+      } else {
+        state.flagged[q.id] = true;
+      }
+      saveState();
+      renderQuestion();
+    }
+
+    function goPrev() {
+      if (state.currentIndex > 0) {
+        state.currentIndex--;
+        saveState();
+        renderQuestion();
+      }
+    }
+
+    function goNext() {
+      if (state.currentIndex < QUESTIONS.length - 1) {
+        state.currentIndex++;
+        saveState();
+        renderQuestion();
+      }
+    }
+
+    function setCardFilter(filter) {
+      state.cardFilter = filter;
+      document.querySelectorAll(".sidebar-card .pill").forEach(p => {
+        p.classList.toggle("active", p.dataset.filter === filter);
+      });
+      renderNumberGrid();
+    }
+
+    function openSubmitModal() {
+      const total = QUESTIONS.length;
+      let unanswered = 0;
+      let flagged = 0;
+      QUESTIONS.forEach(q => {
+        if (state.answers[q.id] === undefined) unanswered++;
+        if (state.flagged[q.id]) flagged++;
+      });
+
+      let msg = `總題數共 ${total} 題。`;
+      if (unanswered > 0) {
+        msg += `<br><strong style="color:#b91c1c;">⚠️ 尚有 ${unanswered} 題未作答！</strong>`;
+      } else {
+        msg += `<br><strong style="color:#15803d;">✓ 所有題目皆已作答完成。</strong>`;
+      }
+      if (flagged > 0) {
+        msg += `<br>另有 <strong>${flagged}</strong> 題標記為「待檢查」。`;
+      }
+      msg += `<br><br>交卷後將立即計算分數並回傳作答狀況給老師。`;
+
+      document.getElementById("submitModalText").innerHTML = msg;
+      document.getElementById("submitModal").classList.add("open");
+    }
+
+    function closeSubmitModal() {
+      document.getElementById("submitModal").classList.remove("open");
+    }
+
+    function buildReportData() {
+      const total = QUESTIONS.length;
+      let correctCount = 0;
+      const wrongItems = [];
+      const detailLines = [];
+
+      QUESTIONS.forEach((q, idx) => {
+        const userAns = state.answers[q.id];
+        const isCorrect = userAns === q.answer;
+        const isFlagged = !!state.flagged[q.id];
+        if (isCorrect) correctCount++;
+
+        const userStr = userAns !== undefined ? `(${userAns}) ${q.options[userAns - 1]}` : "未作答";
+        const ansStr = `(${q.answer}) ${q.options[q.answer - 1]}`;
+        const flagTag = isFlagged ? " [曾標記不確定]" : "";
+
+        if (!isCorrect) {
+          wrongItems.push(
+            `第 ${idx + 1} 題${flagTag}：${q.question}\n   學生作答：${userStr}\n   正確答案：${ansStr}`
+          );
+        }
+
+        detailLines.push(
+          `第 ${String(idx + 1).padStart(2, "0")} 題 [${isCorrect ? "✓" : "✗"}] 學生選：${userAns ?? "未答"} ｜ 正解：${q.answer}${flagTag}`
+        );
+      });
+
+      const score = Math.round((correctCount / total) * 1000) / 10;
+      const timeStr = state.submittedAt || new Date().toLocaleString("zh-TW", { hour12: false });
+
+      const reportText = [
+        `【會計學 CH1–CH2 線上測驗作答報告】`,
+        `交卷時間：${timeStr}`,
+        `測驗成績：${score} 分（答對 ${correctCount} / ${total} 題）`,
+        ``,
+        `========== 錯題明細（共 ${total - correctCount} 題）==========`,
+        wrongItems.length > 0 ? wrongItems.join("\n\n") : "全對！無錯題。",
+        ``,
+        `========== 全部題目作答總表 ==========`,
+        detailLines.join("\n")
+      ].join("\n");
+
+      return { total, correctCount, score, timeStr, reportText };
+    }
+
+    async function confirmSubmit() {
+      closeSubmitModal();
+      state.submitted = true;
+      state.submittedAt = new Date().toLocaleString("zh-TW", { hour12: false });
+      saveState();
+
+      renderResultView();
+      await sendEmailReport();
+    }
+
+    function renderResultView() {
+      document.getElementById("examView").style.display = "none";
+      document.getElementById("topbarStats").style.display = "none";
+      document.getElementById("resultView").style.display = "block";
+
+      const { total, correctCount, score, timeStr, reportText } = buildReportData();
+
+      document.getElementById("scoreDisplay").textContent = `${score} 分`;
+      document.getElementById("correctCountDisplay").textContent = `答對 ${correctCount} / ${total} 題`;
+      document.getElementById("resultSummaryText").textContent =
+        `交卷時間：${timeStr} ｜ 答錯 ${total - correctCount} 題`;
+
+      // 設定 mailto 備用連結
+      const subject = encodeURIComponent(`會計學線上測驗成績：${score}分（答對${correctCount}/${total}題）`);
+      const body = encodeURIComponent(reportText);
+      document.getElementById("mailtoFallbackBtn").href = `mailto:${TEACHER_EMAIL}?subject=${subject}&body=${body}`;
+
+      renderReviewList();
+    }
+
+    async function sendEmailReport() {
+      const card = document.getElementById("emailStatusCard");
+      const title = document.getElementById("emailStatusTitle");
+      const desc = document.getElementById("emailStatusDesc");
+      const { total, correctCount, score, reportText } = buildReportData();
+
+      if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY.trim() === "") {
+        title.textContent = "📋 作答成績已結算完成！請點下方按鈕回傳給老師";
+        desc.innerHTML = `目前尚未填入背景自動寄信金鑰，請點擊<strong>「開啟信箱寄送給老師」</strong>或<strong>「一鍵複製完整作答報告」</strong>直接貼給老師（<code>${TEACHER_EMAIL}</code>）。`;
+        return;
+      }
+
+      try {
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            access_key: WEB3FORMS_ACCESS_KEY.trim(),
+            subject: `會計學線上測驗成績：${score}分（答對${correctCount}/${total}題）`,
+            from_name: "會計學線上測驗系統",
+            message: reportText
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          card.classList.add("sent");
+          title.textContent = `✅ 作答狀況已自動寄送至老師信箱（${TEACHER_EMAIL}）！`;
+          desc.textContent = "老師已收到你的總分、錯題清單與逐題作答紀錄。你也可以在下方直接檢討錯題。";
+        } else {
+          throw new Error(result.message || "寄送失敗");
+        }
+      } catch (err) {
+        title.textContent = "⚠️ 自動寄信未成功，請改用下方按鈕手動回傳給老師";
+        desc.textContent = `請點擊「開啟信箱寄送給老師」或「一鍵複製完整作答報告」傳送至 ${TEACHER_EMAIL}。`;
+      }
+    }
+
+    function copyReportToClipboard() {
+      const { reportText } = buildReportData();
+      navigator.clipboard.writeText(reportText).then(() => {
+        alert("已複製完整作答報告！可直接貼到上課聊天室或 LINE 傳給老師。");
+      }).catch(() => {
+        prompt("請全選複製以下作答報告：", reportText);
+      });
+    }
+
+    function setReviewTab(tab) {
+      state.reviewTab = tab;
+      document.querySelectorAll(".review-tabs .pill").forEach(p => {
+        p.classList.toggle("active", p.dataset.rtab === tab);
+      });
+      renderReviewList();
+    }
+
+    function renderReviewList() {
+      const container = document.getElementById("reviewContainer");
+      container.innerHTML = "";
+
+      QUESTIONS.forEach((q, idx) => {
+        const userAns = state.answers[q.id];
+        const isCorrect = userAns === q.answer;
+        const isFlagged = !!state.flagged[q.id];
+
+        if (state.reviewTab === "wrong" && isCorrect) return;
+        if (state.reviewTab === "flagged" && !isFlagged) return;
+
+        const card = document.createElement("div");
+        card.className = `review-card ${isCorrect ? "correct" : "wrong"}`;
+
+        const optionsHtml = q.options.map((opt, i) => {
+          const num = i + 1;
+          let cls = "review-opt";
+          let tag = "";
+          if (num === q.answer) {
+            cls += " is-answer";
+            tag = " ✓ 正確答案";
+          } else if (num === userAns && !isCorrect) {
+            cls += " is-user-wrong";
+            tag = " ✗ 你的作答";
+          }
+          return `<div class="${cls}">(${num}) ${escapeHtml(opt)}<strong>${tag}</strong></div>`;
+        }).join("");
+
+        card.innerHTML = `
+          <div class="review-meta">
+            <strong style="color:var(--navy);">第 ${idx + 1} 題</strong>
+            <span class="${isCorrect ? "badge-correct" : "badge-wrong"}">
+              ${isCorrect ? "答對" : (userAns === undefined ? "未作答" : "答錯")}
+            </span>
+            ${isFlagged ? '<span class="badge-flag">⚑ 曾標記待檢查</span>' : ""}
+          </div>
+          <div class="review-q">${escapeHtml(q.question)}</div>
+          <div>${optionsHtml}</div>
+        `;
+        container.appendChild(card);
+      });
+
+      if (container.innerHTML === "") {
+        container.innerHTML = `<div class="card" style="text-align:center; color:#6b7280;">此分類下沒有題目。</div>`;
+      }
+    }
+
+    function resetExam() {
+      if (!confirm("確定要清除目前的作答紀錄並重新開始測驗嗎？")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = {
+        currentIndex: 0,
+        answers: {},
+        flagged: {},
+        submitted: false,
+        submittedAt: null,
+        cardFilter: "all",
+        reviewTab: "all"
+      };
+      document.getElementById("resultView").style.display = "none";
+      document.getElementById("examView").style.display = "grid";
+      document.getElementById("topbarStats").style.display = "flex";
+      renderQuestion();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // 鍵盤快捷鍵支援
+    document.addEventListener("keydown", (e) => {
+      if (state.submitted) return;
+      if (document.getElementById("submitModal").classList.contains("open")) return;
+
+      if (["1", "2", "3", "4"].includes(e.key)) {
+        selectOption(Number(e.key));
+      } else if (e.key === "ArrowLeft") {
+        goPrev();
+      } else if (e.key === "ArrowRight") {
+        goNext();
+      } else if (e.key.toLowerCase() === "m") {
+        toggleFlag();
+      }
+    });
+
+    // 初始化
+    loadState();
+    if (state.submitted) {
+      renderResultView();
+    } else {
+      renderQuestion();
+    }
+  </script>
+</body>
+</html>
